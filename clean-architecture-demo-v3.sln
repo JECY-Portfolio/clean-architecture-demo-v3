@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clean-architecture-demo-v3", "clean-architecture-demo-v3\clean-architecture-demo-v3.csproj", "{939D37C6-FBB6-4F80-B3AC-ED28B1FF1279}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{939D37C6-FBB6-4F80-B3AC-ED28B1FF1279}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{939D37C6-FBB6-4F80-B3AC-ED28B1FF1279}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{939D37C6-FBB6-4F80-B3AC-ED28B1FF1279}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{939D37C6-FBB6-4F80-B3AC-ED28B1FF1279}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AD4C7F87-230F-45F5-842E-91A17D30FEAA}
+	EndGlobalSection
+EndGlobal
