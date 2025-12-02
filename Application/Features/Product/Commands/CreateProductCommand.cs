@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Application.Interfaces;
+using MediatR;
 
 namespace Application.Features.Product.Commands
 {
@@ -10,10 +11,26 @@ namespace Application.Features.Product.Commands
 
         internal class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, int>
         {
+            private readonly IApplicationDbContext _context;
+
+            public CreateProductCommandHandler(IApplicationDbContext context)
+            {
+                _context = context;
+            }
+
             public async Task<int> Handle(CreateProductCommand request, CancellationToken cancellationToken)
             {
-                //logic
-                return 1; 
+                var product = new Domain.Entities.Product();
+
+                product.Name = request.Name;
+                product.Description = request.Description;
+                product.Rate = request.Rate;
+
+                await _context.Products.AddAsync(product);
+                await _context.SaveChangesAsync();
+
+                return product.Id;
+                 
             }
         }
     }
