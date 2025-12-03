@@ -1,9 +1,6 @@
 ﻿using Application.DTOs;
-using Application.Features.Product.Commands;
-using Application.Features.Product.Queries;
 using Application.Interfaces;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -16,6 +13,13 @@ namespace WebApi.Controllers
         public AccountController(IAccountService accountService)
         {
             _accountService = accountService;
+        }
+
+        [HttpPost("Authentication")]
+        public async Task<IActionResult> Authentication(AuthenticationRequest registerModel, CancellationToken cancellationToken)
+        {
+            var result = await _accountService.Authenticate(registerModel);
+            return Ok(result);
         }
 
         [HttpPost("RegisterUser")]
