@@ -2,6 +2,7 @@
 using Application.Wrappers;
 using AutoMapper;
 using MediatR;
+using WebApi.SharedServices;
 
 namespace Application.Features.Product.Commands
 {
@@ -15,16 +16,20 @@ namespace Application.Features.Product.Commands
         {
             private readonly IApplicationDbContext _context;
             private readonly IMapper _mapper;
+            private readonly IAuthenticatedUser _authenticatedUser;
 
-            public CreateProductCommandHandler(IApplicationDbContext context, IMapper mapper)
+            public CreateProductCommandHandler(IApplicationDbContext context, IMapper mapper, IAuthenticatedUser authenticatedUser)
             {
                 _context = context;
                 _mapper = mapper;
+                _authenticatedUser = authenticatedUser;
             }
 
             public async Task<ApiResponse<int>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
             {
                 var product = _mapper.Map<Domain.Entities.Product>(request);
+                product.CreatedBy = _authenticatedUser.UserId;
+                product.CreatedOn = DateTime.UtcNow;
                 await _context.Products.AddAsync(product);
                 await _context.SaveChangesAsync();
 
