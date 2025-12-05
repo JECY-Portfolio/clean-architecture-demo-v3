@@ -43,7 +43,7 @@ namespace Persistance.SharedServices
 
             if (await _userManager.IsLockedOutAsync(user))
             {
-                throw new ApiException($"Your account is locked, please try agina later.");
+                throw new ApiException($"Your account is locked, please try again later.");
             }
 
             var succeeded = await _userManager.CheckPasswordAsync(user, request.Password);
