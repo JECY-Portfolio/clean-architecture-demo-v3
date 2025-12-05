@@ -3,31 +3,46 @@ using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Persistance;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
 using System.Text;
+using WebApi;
 using WebApi.Middlewares;
 using WebApi.Services;
 using WebApi.SharedServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+Log.Logger = new LoggerConfiguration()
+          .MinimumLevel.Information()
+          .WriteTo.Console()
+            .WriteTo.MSSqlServer(
+                connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
+                sinkOptions: new MSSqlServerSinkOptions { TableName = "SerilogEvents", AutoCreateSqlTable = true })
+          //.WriteTo.File("logs/myapp.txt", rollingInterval: RollingInterval.Day)
+          .CreateLogger();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerExtention();
+Log.Information("Hello, world!");
 
-
-builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
-builder.Services.AddPersistance(builder.Configuration);
-builder.Services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddAuthentication(options =>
+try
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o =>
+    builder.Host.UseSerilog();
+    // Add services to the container.
+
+    builder.Services.AddControllers();
+    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerExtention();
+    builder.Services.AddApplication();
+    builder.Services.AddInfrastructure();
+    builder.Services.AddPersistance(builder.Configuration);
+    builder.Services.AddScoped<IAuthenticatedUser, AuthenticatedUser>();
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    }).AddJwtBearer(o =>
     {
         o.RequireHttpsMetadata = false;
         o.SaveToken = false;
@@ -66,19 +81,31 @@ builder.Services.AddAuthentication(options =>
             },
         };
     });
+
+
+
     var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.UseMiddleware<ErrorHandlerMiddleware>();
+    app.MapControllers();
+
+    app.Run();
 }
-
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseMiddleware<ErrorHandlerMiddleware>();
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    Log.Error(ex, "Something went wrong");
+}
+finally
+{
+    await Log.CloseAndFlushAsync();
+}
